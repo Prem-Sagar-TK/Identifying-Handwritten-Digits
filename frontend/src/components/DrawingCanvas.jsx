@@ -46,8 +46,19 @@ export default function DrawingCanvas({ onPredict, isLoading }) {
     lastY.current = y;
     setIsDrawing(true);
 
-    // Draw a single dot on click
-    draw(e);
+    // Draw a single dot immediately (isDrawing state update is async so we
+    // can't rely on it being true inside draw() yet — draw the dot directly).
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.lineWidth = brushWidth;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + 0.1, y + 0.1);   // tiny offset so lineTo registers a dot
+    ctx.stroke();
   };
 
   const draw = (e) => {
