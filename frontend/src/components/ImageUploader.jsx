@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, FileImage, Trash2, Brain } from 'lucide-react';
+import { Upload, Trash2, Send } from 'lucide-react';
 
 export default function ImageUploader({ onPredict, isLoading }) {
   const [dragActive, setDragActive] = useState(false);
@@ -21,7 +21,6 @@ export default function ImageUploader({ onPredict, isLoading }) {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
     }
@@ -40,9 +39,7 @@ export default function ImageUploader({ onPredict, isLoading }) {
     }
     setSelectedFile(file);
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewUrl(reader.result);
-    };
+    reader.onloadend = () => setPreviewUrl(reader.result);
     reader.readAsDataURL(file);
   };
 
@@ -50,21 +47,15 @@ export default function ImageUploader({ onPredict, isLoading }) {
     e.stopPropagation();
     setSelectedFile(null);
     setPreviewUrl(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handlePredict = (e) => {
     e.stopPropagation();
-    if (selectedFile) {
-      onPredict(selectedFile);
-    }
+    if (selectedFile) onPredict(selectedFile);
   };
 
-  const triggerFileInput = () => {
-    fileInputRef.current.click();
-  };
+  const triggerFileInput = () => fileInputRef.current.click();
 
   return (
     <div className="canvas-wrapper">
@@ -86,13 +77,13 @@ export default function ImageUploader({ onPredict, isLoading }) {
           onClick={triggerFileInput}
         >
           <div className="uploader-icon">
-            <Upload size={28} />
+            <Upload size={24} />
           </div>
           <div className="upload-text">
             <h3>Drag & drop your digit image</h3>
-            <p>Supports PNG, JPG (recommends black/white or high contrast)</p>
+            <p>Supports PNG, JPG · high contrast works best</p>
           </div>
-          <button type="button" className="btn">
+          <button type="button" className="action-btn">
             Browse File
           </button>
         </div>
@@ -103,23 +94,22 @@ export default function ImageUploader({ onPredict, isLoading }) {
       )}
 
       {previewUrl && (
-        <div className="canvas-controls">
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
           <button
             onClick={clearFile}
-            className="btn btn-danger"
+            className="action-btn danger"
             disabled={isLoading}
           >
-            <Trash2 size={16} />
+            <Trash2 size={13} />
             Remove
           </button>
-
           <button
             onClick={handlePredict}
-            className="btn btn-primary"
+            className="send-btn"
+            title="Run prediction"
             disabled={isLoading}
           >
-            <Brain size={16} />
-            Predict Digit
+            <Send size={15} />
           </button>
         </div>
       )}

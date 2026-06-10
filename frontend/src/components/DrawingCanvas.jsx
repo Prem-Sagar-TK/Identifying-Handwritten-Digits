@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Eraser, Brain } from 'lucide-react';
+import { Trash2, Brain, Send } from 'lucide-react';
 
 export default function DrawingCanvas({ onPredict, isLoading }) {
   const canvasRef = useRef(null);
@@ -12,7 +12,6 @@ export default function DrawingCanvas({ onPredict, isLoading }) {
     const canvas = canvasRef.current;
     if (canvas) {
       const ctx = canvas.getContext('2d');
-      // Initialize with solid black background
       ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
@@ -21,22 +20,14 @@ export default function DrawingCanvas({ onPredict, isLoading }) {
   const getCoordinates = (e) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
-
     const rect = canvas.getBoundingClientRect();
-
-    // For touch events
     if (e.touches && e.touches.length > 0) {
       return {
         x: e.touches[0].clientX - rect.left,
-        y: e.touches[0].clientY - rect.top
+        y: e.touches[0].clientY - rect.top,
       };
     }
-
-    // For mouse events
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    };
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   };
 
   const startDrawing = (e) => {
@@ -46,8 +37,6 @@ export default function DrawingCanvas({ onPredict, isLoading }) {
     lastY.current = y;
     setIsDrawing(true);
 
-    // Draw a single dot immediately (isDrawing state update is async so we
-    // can't rely on it being true inside draw() yet — draw the dot directly).
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -57,14 +46,13 @@ export default function DrawingCanvas({ onPredict, isLoading }) {
     ctx.lineWidth = brushWidth;
     ctx.beginPath();
     ctx.moveTo(x, y);
-    ctx.lineTo(x + 0.1, y + 0.1);   // tiny offset so lineTo registers a dot
+    ctx.lineTo(x + 0.1, y + 0.1);
     ctx.stroke();
   };
 
   const draw = (e) => {
     if (!isDrawing) return;
     e.preventDefault();
-
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -84,9 +72,7 @@ export default function DrawingCanvas({ onPredict, isLoading }) {
     lastY.current = y;
   };
 
-  const stopDrawing = () => {
-    setIsDrawing(false);
-  };
+  const stopDrawing = () => setIsDrawing(false);
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
@@ -99,7 +85,6 @@ export default function DrawingCanvas({ onPredict, isLoading }) {
   const handlePredict = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     canvas.toBlob((blob) => {
       if (blob) {
         const file = new File([blob], 'digit.png', { type: 'image/png' });
@@ -125,9 +110,10 @@ export default function DrawingCanvas({ onPredict, isLoading }) {
         />
       </div>
 
-      <div className="canvas-controls">
+      {/* Controls row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
         <div className="brush-slider-group">
-          <span>Brush Size:</span>
+          <span>Size:</span>
           <input
             type="range"
             min="8"
@@ -139,22 +125,24 @@ export default function DrawingCanvas({ onPredict, isLoading }) {
           <span>{brushWidth}px</span>
         </div>
 
-        <div className="btn-group">
+        <div style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={clearCanvas}
-            className="btn btn-danger"
-            title="Clear drawing board"
+            className="action-btn danger"
+            title="Clear canvas"
             disabled={isLoading}
           >
+            <Trash2 size={13} />
             Clear
           </button>
 
           <button
             onClick={handlePredict}
-            className="btn btn-primary"
+            className="send-btn"
+            title="Run prediction"
             disabled={isLoading}
           >
-            Predict
+            <Send size={15} />
           </button>
         </div>
       </div>
